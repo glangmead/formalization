@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --rewriting #-}
 
 open import lib.Basics
 
@@ -20,15 +20,15 @@ module C1.Base
   open import lib.Equivalence2
   open import lib.types.Coproduct
 
-  _is-discrete-C0 : {i : ULevel} (A : Type i) → Type _
+  _is-discrete-C0 : {@♭ i : ULevel} (A : Type i) → Type _
   _is-discrete-C0 {i} A = (index : I) → (is-equiv {i = i} (λ (a : A) → (λ (r : R index) → a)))
 
-  discrete-C0-eq : {i : ULevel} {A : Type i} (p : A is-discrete-C0) (index : I)
+  discrete-C0-eq : {@♭ i : ULevel} {A : Type i} (p : A is-discrete-C0) (index : I)
                    → A ≃ ((R index) → A)
   discrete-C0-eq p index = _ , (p index)
                    
 
-  prop-is-discrete-C0 : {i : ULevel} (P : PropT i) → (P holds) is-discrete-C0
+  prop-is-discrete-C0 : {@♭ i : ULevel} (P : PropT i) → (P holds) is-discrete-C0
   prop-is-discrete-C0 P =
     (λ index →
       is-eq to
@@ -50,7 +50,7 @@ module C1.Base
 
   -- Mapping into a C0 discrete gives a C0 discrete space.
   -- The argument is by swapping the order of application.
-  Π-♭-C0 : {i j : ULevel} {A : Type i}
+  Π-♭-C0 : {@♭ i j : ULevel} {A : Type i}
            {B : A → Type j} (p : (a : A) → (B a) is-discrete-C0)
            → ((a : A) → B a) is-discrete-C0
   Π-♭-C0 {A = A} {B = B} p =
@@ -89,7 +89,7 @@ module C1.Base
       map₂ : ♭ (♯ (P holds)) → ♭ (P holds)
       map₂ = –> ♭♯-eq
 
-  ¬-is-codiscrete : ∀ {i} (A : Type i) → (¬ A) is-codiscrete
+  ¬-is-codiscrete : ∀ {@♭ i} (A : Type i) → (¬ A) is-codiscrete
   ¬-is-codiscrete {i} A = -- mapping into a codiscrete is codiscrete.
     replete (Π-codisc {A = A} (λ _ → ⊥)) (lemma₁ ⁻¹)
     where

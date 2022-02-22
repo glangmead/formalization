@@ -1,4 +1,4 @@
-{-$ OPTIONS --without-K #-}
+{-# OPTIONS --without-K --rewriting #-}
 
 module Algebra.Monoid where
   open import Basics
