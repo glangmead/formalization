@@ -227,7 +227,7 @@ module Flat where
   ♭-Trunc-map : {@♭ i : ULevel} {@♭ n : ℕ₋₂} (@♭ X : Type i)
              → (Trunc n (♭ X)) → ♭ (Trunc n X)
   ♭-Trunc-map X =
-    Trunc-elim {{p = λ _ → ♭-preserves-level Trunc-level}}
+    Trunc-elim {{p = ♭-preserves-level Trunc-level}}
       (λ { (a ^♭) → [ a ] ^♭ })
 
   -- Until ♯ works we have to postulate this.
