@@ -88,7 +88,7 @@ module Sharp where
        -------------------
        Δ | Γ  ⊢ ♯ A : Type
     -}
-    ♯-ptwise : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
+    ♯-ptwise : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
                (A : Γ ::→ Type j)
                → (Γ → Type j)
 
@@ -100,7 +100,7 @@ module Sharp where
       -------------------
       Δ | Γ ⊢ a ^♯ : ♯ A
     -}
-    ^♯-ptwise : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
+    ^♯-ptwise : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
                 {A : Γ ::→ Type j} (a : (@♭ x : Γ) → A x)
                 → (x : Γ) → (♯-ptwise A) x
 
@@ -114,7 +114,7 @@ module Sharp where
       It seems to me that to have a crisp variable of ♯ A requires A to be crisp...
       But the pointwise one doesn't just that the context is crisp?
     -}
-    ↓♯-ptwise : {@♭ i : ULevel} {@♭ i : Type i} {@♭ j : ULevel} {A : Δ ::→ Type j}
+    ↓♯-ptwise : {@♭ i : ULevel} {@♭ Δ : Type i} {@♭ j : ULevel} {A : Δ ::→ Type j}
                 (a : (@♭ x : Δ) → (♯-ptwise A) x)
                 → (@♭ x : Δ) → A x
 
@@ -142,8 +142,8 @@ module Sharp where
       We take this sameness to be a judgemental equality, implemented as a rewrite rule.
     -}
 
-    ♯-law' : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
-             (A : Γ → Type j) (x : Γ)
+    ♯-law' : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
+             (A : Γ ::→ Type j) (@♭ x : Γ)
              → (♯-ptwise A) x ↦ ♯ (A x)
     {-# REWRITE ♯-law' #-}
 
@@ -155,7 +155,7 @@ module Sharp where
 -}
     
 
-    ^♯-law : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
+    ^♯-law : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
               {A : Γ ::→ Type j} (a : (@♭ x : Γ) → A x)
               (@♭ x : Γ) → (^♯-ptwise a) x ↦ ((a x) ^♯)
     {-# REWRITE ^♯-law #-}
@@ -163,7 +163,7 @@ module Sharp where
     -- [WARNING] When normalizing λ A x → (^♯-ptwise a) x, the rewrite ^♯-law will fire
     -- turning it into ((a x) ^♯), which is ill typed on cohesive x : Γ (and the typechecker complains)
 
-    ↓♯-law : {@♭ i : ULevel} {@♭ i : Type i} {@♭ j : ULevel} {@♭ A : Δ ::→ Type j}
+    ↓♯-law : {@♭ i : ULevel} {@♭ Δ : Type i} {@♭ j : ULevel} {@♭ A : Δ ::→ Type j}
               (@♭ a : (@♭ x : Δ) → (♯-ptwise A) x)
               (@♭ x : Δ) → (↓♯-ptwise a) x ↦ ((a x) ↓♯)
     {-# REWRITE ↓♯-law #-}
@@ -178,7 +178,7 @@ module Sharp where
 
   syntax ^♯-ptwise (λ γ → a) ctx = let♯ γ ::= ctx in♯ a ^^♯
 
-  ^♯-ptwise-explicit : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
+  ^♯-ptwise-explicit : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
                        (A : Γ ::→ Type j) (a : (@♭ x : Γ) → A x)
                        → (x : Γ) → (♯-ptwise A) x
   ^♯-ptwise-explicit A = ^♯-ptwise {A = A}
@@ -362,7 +362,7 @@ module Sharp where
         (((ᶜf γ) (ᶜa γ)) ↓♯) ^^♯
       where open CTX-uncrisp
 
-  Π-codisc : {i j : ULevel} {A : Type i} (B : A → Type j)
+  Π-codisc : {@♭ i j : ULevel} {A : Type i} (B : A → Type j)
                  → ((a : A) → ♯ (B a)) is-codiscrete
   Π-codisc {A = A} B =
     _^♯ is-an-equivalence-because
@@ -370,7 +370,7 @@ module Sharp where
         (λ _ → refl) and (λ _ → refl)
 
   -- The map ♯ (x == y) → (x == y) for x y : ♯ A, following RSS Lemma 1.25
-  module _ {i : ULevel} {A : Type i} {x y : ♯ A} where
+  module _ {@♭ i : ULevel} {A : Type i} {x y : ♯ A} where
     private
       constx : ♯ (x == y) → ♯ A
       constx _ = x
@@ -389,7 +389,7 @@ module Sharp where
     ♯-=-retract p = app= lemma₁ p
 
   -- To prove a type is an equivalence, it suffices to give a retract of _^♯
-  _is-codiscrete-because_is-retract-by_ : {i : ULevel} (A : Type i)
+  _is-codiscrete-because_is-retract-by_ : {@♭ i : ULevel} (A : Type i)
                                           (r : ♯ A → A) (p : (a : A) → r (a ^♯)  == a)
                                           → A is-codiscrete
   A is-codiscrete-because r is-retract-by p =
@@ -406,7 +406,7 @@ module Sharp where
       and p
 
   -- We follow RSS Lemma 1.25
-  =-is-codiscrete : {i : ULevel} {A : Type i} (x y : ♯ A)
+  =-is-codiscrete : {@♭ i : ULevel} {A : Type i} (x y : ♯ A)
                     → (x == y) is-codiscrete
   =-is-codiscrete {A = A} x y =
    (x == y) is-codiscrete-because ♯-=-retract is-retract-by proof
@@ -416,7 +416,7 @@ module Sharp where
         proof = trust-me
           where postulate trust-me : (p : x == y) → (♯-=-retract (p ^♯)) == p
 
-  ♯-modality : {i : ULevel} → Modality i
+  ♯-modality : {@♭ i : ULevel} → Modality i
   ♯-modality {i} = record
                  { is-local = _is-codiscrete
                  ; is-local-is-prop = λ {A} → A is-codisc-is-a-prop
@@ -428,18 +428,18 @@ module Sharp where
                  ; ◯-=-is-local = =-is-codiscrete
                  }
 
-  _is-infinitesimal : {i : ULevel} → Type i → Type i
+  _is-infinitesimal : {@♭ i : ULevel} → Type i → Type i
   _is-infinitesimal = Modality.is-◯-connected ♯-modality
 
-  ♯→e : {i : ULevel} {A B : Type i} → A ≃ B → (♯ A) ≃ (♯ B)
+  ♯→e : {@♭ i : ULevel} {A B : Type i} → A ≃ B → (♯ A) ≃ (♯ B)
   ♯→e = Modality.◯-emap ♯-modality
 
-  ♯-Σ : ∀ {i} {A : Type i} (B : A → Type i)
+  ♯-Σ : ∀ {@♭ i} {A : Type i} (B : A → Type i)
         → A is-codiscrete → ((a : A) → (B a) is-codiscrete)
         → (Σ A B) is-codiscrete
   ♯-Σ {i} = (Modality.Σ-is-local {i}) ♯-modality
 
-  ♯-Π : ∀ {i} {A : Type i} {B : A → Type i} (w : (a : A) → (B a) is-codiscrete)
+  ♯-Π : ∀ {@♭ i} {A : Type i} {B : A → Type i} (w : (a : A) → (B a) is-codiscrete)
         → (Π A B) is-codiscrete
   ♯-Π {i} = (Modality.Π-is-local {i}) ♯-modality
 
@@ -599,7 +599,7 @@ module Sharp where
     
 
   -- For now, we'll just postulate it
-  ♯-=-compare : {i : ULevel} {A : Type i} {x y : A}
+  ♯-=-compare : {@♭ i : ULevel} {A : Type i} {x y : A}
                 → ♯ (x == y) → (x ^♯) == (y ^♯)
   ♯-=-compare {x = x} {y = y} p =
     ♯-=-retract  $ -- it suffices to give ♯ (x ^♯ == y ^♯)
@@ -631,7 +631,7 @@ module Sharp where
       ^^♯-in-family (λ γ → ((ᶜx γ) ^♯) == ((ᶜy γ) ^♯) → ♯ ((ᶜx γ) == (ᶜy γ)))
       where open CTX-♯-lex
 
-  ♯-has-level-is-codisc : {i : ULevel} {A : Type i}
+  ♯-has-level-is-codisc : {@♭ i : ULevel} {A : Type i}
                           {n : ℕ₋₂} → (has-level n (♯ A)) is-codiscrete
   ♯-has-level-is-codisc {i} {A} {n} = replete helper (has-level-def-eq ⁻¹)
     where
@@ -650,7 +650,7 @@ module Sharp where
               (≃-preserves-level-eq ((codisc-eq $ =-is-codiscrete x y) ⁻¹))))
 
       
-  ♯-preserves-level : {i : ULevel} {A : Type i}
+  ♯-preserves-level : {@♭ i : ULevel} {A : Type i}
                       {n : ℕ₋₂} (p : has-level n A)
                       → has-level n (♯ A)
   ♯-preserves-level {i} {A} {⟨-2⟩} p =
@@ -684,6 +684,6 @@ module Sharp where
                   ♯ ((u ^♯) == (v ^♯))
                 ≃∎
 
-  ♯ₙ : {i : ULevel} {n : ℕ₋₂}
+  ♯ₙ : {@♭ i : ULevel} {n : ℕ₋₂}
        → (A : n -Type i) → (n -Type i)
   ♯ₙ A = (♯ (fst A)) , ♯-preserves-level (snd A)

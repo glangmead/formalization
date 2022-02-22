@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --overlapping-instances #-}
+{-# OPTIONS --without-K --rewriting #-}
 
 module Conaturals where
   open import Basics
