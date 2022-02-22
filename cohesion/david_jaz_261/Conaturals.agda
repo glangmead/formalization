@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K #-}
+{-# OPTIONS --without-K --overlapping-instances #-}
 
 module Conaturals where
   open import Basics
@@ -44,11 +44,10 @@ module Conaturals where
   suc∞ : ℕ∞ → ℕ∞
   pred∞ (suc∞ x) = go∞ x
 
-  instance
-    ℕ-to-ℕ∞ : ℕ → ℕ∞
-    ℕ-to-ℕ∞ O = coO
-    ℕ-to-ℕ∞ (S n) = suc∞ (ℕ-to-ℕ∞ n)
-
+  ℕ-to-ℕ∞ : ℕ → ℕ∞
+  ℕ-to-ℕ∞ O = coO
+  ℕ-to-ℕ∞ (S n) = suc∞ (ℕ-to-ℕ∞ n)
+                                  
   case-pred∞_of_ : {i : ULevel} {A : Type i}
                   (n : ℕ∞) (f :  ℕ∞ ⊔ ⊤ → A)
                   → A
@@ -73,12 +72,12 @@ module Conaturals where
 
   syntax case∞ a (λ m → t) n = case∞ n of-co0→ a suc∞- m -→ t 
 
-  instance
-    ℕ∞-to-ℕ→Prop : ℕ∞ → (ℕ → Bool)
-    ℕ∞-to-ℕ→Prop n = case∞ n
-                       of-co0→ (λ _ → true )
-                       suc∞- m -→ {! λ { O → false ; (S k) → ℕ∞-to-ℕ→Prop m k }!}
-    {- ℕ∞-to-ℕ→Prop n O = pred∞-is-coO n
+  -- ℕ∞-to-ℕ→Prop : ℕ∞ → (ℕ → Bool)
+  -- ℕ∞-to-ℕ→Prop n = case∞ n
+  --                    of-co0→ (λ _ → true )
+  --                    suc∞- m -→ {! λ { O → false ; (S k) → ℕ∞-to-ℕ→Prop m k }!}
+  -- previous 4 lines commented by jonas
+{- ℕ∞-to-ℕ→Prop n O = pred∞-is-coO n
         
     ℕ∞-to-ℕ→Prop n (S k) = {!helperS (pred∞ n) k!}
       where
