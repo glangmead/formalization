@@ -28,16 +28,17 @@ module Sharp where
       First, naively, as follows:
     -}
 
-    -- Given a type A, we may form ♯ A
+    -- Rule 1/5: Given a type A, we may form ♯ A
     ♯ : {i : ULevel} → Type i → Type i
 
-    -- Given an a : A, we may form a^♯ : ♯ A
+    -- Rule 2/5: Given an a : A, we may form a^♯ : ♯ A
     _^♯ : {i : ULevel} {A : Type i} → A → ♯ A
 
-    -- Given a crisp a :: ♯ A, we may form a ↓♯ : A
+    -- Rule 3/5: Given a crisp a :: ♯ A, we may form a ↓♯ : A
     _↓♯ : {@♭ i : ULevel} {@♭ A : Type i} → ♯ A ::→ A
 
     {-
+      Rule 4/5
       Given a :: A, we have that (a ^♯) ↓♯ ≡ a.
 
       Δ | ∙ ⊢ a : A
@@ -52,6 +53,7 @@ module Sharp where
     {-# REWRITE ^↓♯ #-}
 
     {-
+      Rule 5/5
       Given a : ♯ A in any context, we have (a ↓♯) ^♯ ≡ a
 
       Δ | Γ ⊢ a : ♯ A
@@ -78,21 +80,24 @@ module Sharp where
     -}
     
     {-
-       If one has a crisp context Γ and a type A which depends crisply on Γ,
-       Then one may form ♯ A which depends cohesively on Γ.
+      Rule 1/5
+      If one has a crisp context Γ and a type A which depends crisply on Γ,
+      Then one may form ♯ A which depends cohesively on Γ.
 
-       Or, read backwards, to construct ♯ A in the context Γ, it suffices to assume
-       That every variable x : Γ appearing in A is crisp.
+      Or, read backwards, to construct ♯ A in the context Γ, it suffices to assume
+      That every variable x : Γ appearing in A is crisp.
 
-       Δ, Γ | ∙ ⊢ A : Type
-       -------------------
-       Δ | Γ  ⊢ ♯ A : Type
+      Δ, Γ | ∙ ⊢ A : Type
+      -------------------
+      Δ | Γ  ⊢ ♯ A : Type
     -}
+    -- compare to ♯ : {i : ULevel} → Type i → Type i
     ♯-ptwise : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
                (A : Γ ::→ Type j)
                → (Γ → Type j)
 
     {-
+      Rule 2/5
       If one has a : A in a crisp context Γ, 
       one may form a ^♯ : ♯ A in the cohesive context Γ.
 
@@ -105,38 +110,43 @@ module Sharp where
                 → (x : Γ) → (♯-ptwise A) x
 
     {-
-      If one has a :: ♯ A in a crisp context Γ, one may form a ↓♯ : A, also in a crisp context Γ
+      Rule 3/5
+      If one has a :: ♯ A in a crisp context Γ, 
+      one may form a ↓♯ : A, also in a crisp context Γ
 
       Δ | ∙ ⊢ a : ♯ A
       ---------------
       Δ | Γ ⊢ a ↓♯ : A
 
       It seems to me that to have a crisp variable of ♯ A requires A to be crisp...
-      But the pointwise one doesn't just that the context is crisp?
+      But this pointwise definition one doesn't. It just requires that the context 
+      is crisp.
     -}
-    ↓♯-ptwise : {@♭ i : ULevel} {@♭ Δ : Type i} {@♭ j : ULevel} {A : Δ ::→ Type j}
+    ↓♯-ptwise : {@♭ i : ULevel} {@♭ Δ : Type i} {j : ULevel} {A : Δ ::→ Type j}
                 (a : (@♭ x : Δ) → (♯-ptwise A) x)
                 → (@♭ x : Δ) → A x
 
     {-
+      Rule 5/5
       I'm having a difficulty implementing the ptwise version of ↓^♯ that will fire
       whether or not A and a are crisp. 
       I think this is because if they are, it is a special case of the ↓^♯ rule,
       But it is not strictly more general, since it keeps track of the "explicit context" Δ
 
-      Or, if I take everything in ↓♯-ptwise to be crisp, then it doesn't typecheck at this generality.
+      Or, if I take everything in ↓♯-ptwise to be crisp, then it doesn't typecheck at this 
+      generality.
     -}
     {-
-    ↓^♯-ptwise : {@♭ i : ULevel} {j : ULevel} {@♭ i : Type i} {A : Δ ::→ Type j}
+    ↓^♯-ptwise : {@♭ i : ULevel} {j : ULevel} {@♭ Δ : Type i} {A : Δ ::→ Type j}
                  (a : (@♭ x : Δ) → (♯-ptwise A) x) (@♭ x : Δ)
                  → (((↓♯-ptwise a) x) ^♯) ↦ a x
     {-# REWRITE ↓^♯-ptwise #-} 
     -}
-
+    
     {-
       Finally, we relate the pointwise operations with the naive ones in the obvious way.
 
-      That is, if we apply an pointwise operation to a crisp variable of the "context",
+      That is, if we apply a pointwise operation to a crisp variable of the "context",
       this is the same as applying the naive operation pointwise to that variable.
     
       We take this sameness to be a judgemental equality, implemented as a rewrite rule.
@@ -147,21 +157,14 @@ module Sharp where
              → (♯-ptwise A) x ↦ ♯ (A x)
     {-# REWRITE ♯-law' #-}
 
-{-
-    ♯-law : {@♭ i : ULevel} {@♭ i : Type i} {j : ULevel}
-             (A : Γ ::→ Type j) (@♭ x : Γ)
-             → (♯-ptwise A) x ↦ ♯ (A x)
-    {-# REWRITE ♯-law #-}
--}
-    
-
     ^♯-law : {@♭ i : ULevel} {@♭ Γ : Type i} {j : ULevel}
               {A : Γ ::→ Type j} (a : (@♭ x : Γ) → A x)
               (@♭ x : Γ) → (^♯-ptwise a) x ↦ ((a x) ^♯)
     {-# REWRITE ^♯-law #-}
 
     -- [WARNING] When normalizing λ A x → (^♯-ptwise a) x, the rewrite ^♯-law will fire
-    -- turning it into ((a x) ^♯), which is ill typed on cohesive x : Γ (and the typechecker complains)
+    -- turning it into ((a x) ^♯), which is ill typed on cohesive x : Γ (and the typechecker 
+    -- complains)
 
     ↓♯-law : {@♭ i : ULevel} {@♭ Δ : Type i} {@♭ j : ULevel} {@♭ A : Δ ::→ Type j}
               (@♭ a : (@♭ x : Δ) → (♯-ptwise A) x)

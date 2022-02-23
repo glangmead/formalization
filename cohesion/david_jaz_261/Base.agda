@@ -1,6 +1,7 @@
 {-# OPTIONS --without-K --rewriting #-}
 
 module Base where
+
   open import lib.Basics 
 
   open import lib.Funext
@@ -11,19 +12,22 @@ module Base where
   quodlibet : {i : ULevel} {A : Type i} → ⊥ → A
   quodlibet = ⊥-elim
 
-  _|>_ : {i j : ULevel} {A : Type i} {B : A → Type j}
+  -- infix notation for piping a term argument into a dependent function
+  _|>_ : ∀ {i j} {A : Type i} {B : A → Type j}
         (a : A) (f : (a : A) → B a) → B a
   a |> f = f a
 
+  -- infix notation for applying a path between two functions to an argument to give a path from f x to g x
   _at_ : ∀ {i j} {A : Type i} {P : A → Type j} {f g : Π A P} (p : f == g) → f ∼ g
   p at x = app= p x
 
   End : ∀ {i} (X : Type i) → Type i
   End X = X → X
 
+  -- composition of a dependent function with a fiberwise dependent function
   infixl 80 _>>_
   _>>_ : ∀ {i j k} {A : Type i} {B : A → Type j} {C : (a : A) → (B a → Type k)}
-         → (f : Π A B) → (g : {a : A} → Π (B a) (C a)) → Π A (λ a → C a (f a))
+          → (f : Π A B) → (g : {a : A} → Π (B a) (C a)) → Π A (λ a → C a (f a))
   f >> g = λ x → g (f x)
 
   -- Crisp function types (the domain must be crisp)
@@ -45,15 +49,16 @@ module Base where
 
   -- Crisp function extensionality (postulated for now, because I'm lazy)
   postulate
+    -- domain is a crisp term of a crisp type
     ♭λ= : {@♭ i : ULevel} {j : ULevel} {@♭ A : Type i}
           {B : A → Type j} {f g : (@♭ a : A) → B a}
           (h : (@♭ a : A) → f a == g a)
           → f == g
-  -- Fully crisp function extensionalty
+  -- Fully crisp function extensionalty: domain and codomain are crisp types
   ♭♭λ= : {@♭ i j : ULevel} {@♭ A : Type i}
-         {@♭ B : A → Type j} {@♭ f g : (@♭ a : A) → B a}
-         (@♭ h : (@♭ a : A) → f a == g a)
-         → f == g
+          {@♭ B : A → Type j} {@♭ f g : (@♭ a : A) → B a}
+          (@♭ h : (@♭ a : A) → f a == g a)
+          → f == g
   ♭♭λ= h = ♭λ= h
 
   -- The "identity path" is called refl
@@ -71,7 +76,7 @@ module Base where
 
   _is-split-inj : {i j : ULevel} {A : Type i} {B : Type j} (s : A → B) → Type (lmax i j)
   _is-split-inj {A = A} {B = B} s = Σ (B → A) (λ r → (a : A) → r (s a) == a) 
-  
+
   -- Implicit and Explicit function types are equivalent
 
   imp-equiv-exp : {i j : ULevel} {A : Type i} {B : A → Type j}
@@ -89,14 +94,14 @@ module Base where
   exp-equiv-imp = imp-equiv-exp ⁻¹
 
   _⊔→_ : {i j k l : ULevel} {A : Type i} {B : Type j} {C : Type k} {D : Type l}
-         (f : A → C) (g : B → D)
-         → A ⊔ B → C ⊔ D
+          (f : A → C) (g : B → D)
+          → A ⊔ B → C ⊔ D
   (f ⊔→ g) (inl a)  = inl (f a)
   (f ⊔→ g) (inr b)  = inr (g b)
 
   _⊔e_ : {i j k l : ULevel} {A : Type i} {B : Type j} {C : Type k} {D : Type l}
-         (f : A ≃ C) (g : B ≃ D)
-         → A ⊔ B ≃ C ⊔ D
+          (f : A ≃ C) (g : B ≃ D)
+          → A ⊔ B ≃ C ⊔ D
   f ⊔e g =
     equiv
       ((–> f) ⊔→ (–> g))
@@ -111,7 +116,7 @@ module Base where
 
   -- An equivalence version of the above
   ≃-preserves-level-eq : ∀ {i j} {A : Type i} {B : Type j} {n : ℕ₋₂} (e : A ≃ B)
-                         → has-level n A ≃ has-level n B
+                          → has-level n A ≃ has-level n B
   ≃-preserves-level-eq e =
     equiv 
       (≃-preserves-level e)
@@ -121,11 +126,11 @@ module Base where
 
   -- An equivalence between has-level-aux and has-level
   has-level-def-eq : {i : ULevel} {A : Type i} {n : ℕ₋₂}
-                     → (has-level n A) ≃ (has-level-aux n A)
+                      → (has-level n A) ≃ (has-level-aux n A)
   has-level-def-eq {A = A} {n = n} = equiv has-level-apply has-level-in (λ b → refl) (λ a → refl)
- 
 
- 
+
+
   -- Compositional reasoning (like equational reasoning, but for composing)
   infixr 15 _→∎
   infixr 10 _–⟨_⟩→_
@@ -138,7 +143,7 @@ module Base where
   _→∎ : ∀ {i} (A : Type i) → A → A
   _→∎ = idf
 
-{-
+  {-
   -- SKETCHING
   lemma : ∀ {i j} (A : Type i) (B : Type j) (a₀ : A)
           (p : (f : A → B) (a : A) → (f a₀) == (f a))
@@ -166,4 +171,4 @@ module Base where
     S-is-discrete = lemma R S r₀ contr
 
     
--}
+  -}
