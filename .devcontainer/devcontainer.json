@@ -1,0 +1,6 @@
+{
+    "name": "Agda formalization",
+    "build": {
+        "dockerfile": "Dockerfile"
+    }
+}
