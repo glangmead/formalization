@@ -1,8 +1,8 @@
 {
     "name": "Agda formalization",
     "image": "glangmead/agda-2.6.2",
-    "extensions": [
-        "banacorn.agda-mode"
-    ],
+    // "extensions": [
+    //     "banacorn.agda-mode"
+    // ],
     "postCreateCommand": "bash download_agda_libs.sh"
 }
